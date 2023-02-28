@@ -5,6 +5,7 @@ using System.Runtime.Serialization.Formatters.Binary;
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
+using System.Runtime.Serialization;
 
 namespace lab1
 {
@@ -112,8 +113,19 @@ namespace lab1
             }
             FileStream fileStream = new FileStream("Serialized.dat", FileMode.Create);
             BinaryFormatter formatter = new BinaryFormatter();
-            formatter.Serialize(fileStream, fileList);
-            fileStream.Close();
+            try
+            {
+                formatter.Serialize(fileStream, fileList);
+            }
+            catch (SerializationException e)
+            {
+                Console.WriteLine("Nie udalo sie wykonac serializacji. Blad: " + e.Message);
+                throw;
+            }
+            finally
+            {
+                fileStream.Close();
+            }
             SortedList<string, long> deserializedList = Deserialization();
             foreach (KeyValuePair<string, long> keyVal in deserializedList)
             {
@@ -126,7 +138,19 @@ namespace lab1
             SortedList<string, long> fileList = new SortedList<string, long>(comparer);
             FileStream fileStream = new FileStream("Serialized.dat", FileMode.Open);
             BinaryFormatter formatter = new BinaryFormatter();
-            fileList = (SortedList<string, long>)formatter.Deserialize(fileStream);
+            try
+            {
+                fileList = (SortedList<string, long>)formatter.Deserialize(fileStream);
+            }
+            catch(SerializationException e)
+            {
+                Console.WriteLine("Nie udalo sie wykonac deserializacji. Blad: " + e.Message);
+                throw;
+            }
+            finally
+            {
+                fileStream.Close();
+            }
             return fileList;    
         }
     }
